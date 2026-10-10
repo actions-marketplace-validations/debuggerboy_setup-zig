@@ -126,7 +126,7 @@ async function getTarballName() {
     x64:      'x86_64',
   }[os.arch()];
 
-  // For some incomprehensible reason, Node.js's brain-damaged build system explicitly throws away
+  // For some incomprehensible reason, Node.js's build system explicitly throws away
   // the knowledge that it is building for ppc64le, so os.arch() will identify it as ppc64 even on
   // little endian.
   if (arch === 'powerpc64' && os.endianness() === 'LE') {
@@ -149,10 +149,10 @@ async function getTarballName() {
     win32:   'windows',
   }[os.platform()];
 
-  // Before 0.14.1, Zig tarballs were named like 'zig-linux-x86_64-0.14.0', with the arch
-  // and OS fields reversed from the order we use today.
+  // Modified: Reversed the naming output order to support modern version requirements (zig-arch-platform-version)
+  // Old logic checked versionLessThan 0.15.0/0.14.1 to flip the scheme.
   if (versionLessThan(version, "0.15.0-dev.631+9a3540d61") && versionLessThan(version, "0.14.1")) {
-    return `zig-${platform}-${arch}-${version}`;
+    return `zig-${arch}-${platform}-${version}`;
   }
 
   return `zig-${arch}-${platform}-${version}`;
@@ -179,7 +179,7 @@ function versionLessThan(cur_ver, min_ver) {
 // 'dev' is `null` if `str` was not a dev version.
 // On failure, returns `null`.
 function parseVersion(str) {
-  const match = /^(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)(?:-dev\.(?<dev>\d+)\+[0-9a-f]*)?$/.exec(str);
+  const match = /^(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)(?:-dev\.(?<dev>\d+)\+[0-9a-f]*)?\$/.exec(str);
   if (match === null) return null;
   return {
     major: parseInt(match.groups['major']),
